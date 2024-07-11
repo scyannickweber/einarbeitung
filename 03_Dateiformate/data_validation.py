@@ -13,7 +13,7 @@ with open("base.yaml", "w", encoding="utf-8") as yaml_file:
     yaml_file.write(yaml_data)
 
 
-def dict_to_xml(tag, d):
+def dict_to_xml(tag, d) -> ET.Element:
     """Erstellt aus einem dict eine XML Datei"""
     elem = ET.Element(tag)
 
