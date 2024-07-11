@@ -14,18 +14,25 @@ with open("base.yaml", "w", encoding="utf-8") as yaml_file:
 
 
 def dict_to_xml(tag, d):
-    """Erstellt aus dem dict eine XML Datei"""
+    """Erstellt aus einem dict eine XML Datei"""
     elem = ET.Element(tag)
+
     if isinstance(d, dict):
         for key, val in d.items():
+            if key == "members" and isinstance(val, list) and len(val) == 1:
+                key = "member"
+            elif key == "powers" and isinstance(val, list) and len(val) == 1:
+                key = "power"
+
             child = dict_to_xml(key, val)
             elem.append(child)
     elif isinstance(d, list):
         for item in d:
-            child = dict_to_xml(tag, item)
+            child = dict_to_xml(tag[:-1], item)
             elem.append(child)
     else:
         elem.text = str(d)
+
     return elem
 
 
