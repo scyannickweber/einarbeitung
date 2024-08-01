@@ -143,16 +143,15 @@ class editColumns:
 
     def AddNewData(self, whatToAdd):
         if whatToAdd == "squad" or "Squad":
-            Eingabe1 = str(input("gebe den Namen des squads ein: "))
-            Eingabe2 = str(input("gebe die Stadt des squads ein: "))
-            Eingabe3 = int(input("Gründungsdatum angeben: "))
-            Eingabe4 = str(input("gebe den status des squads ein: "))
-            Eingabe5 = str(input("gebe die Geheimbasis an: "))
-            Eingabe6 = int(input("gebe an ob das squad acitv ist oder nicht: "))
+            E1 = str(input("gebe den Namen des squads ein: "))
+            E2 = str(input("gebe die Stadt des squads ein: "))
+            E3 = int(input("Gründungsdatum angeben: "))
+            E4 = str(input("gebe den status des squads ein: "))
+            E5 = str(input("gebe die Geheimbasis an: "))
+            E6 = int(input("gebe an ob das squad acitv ist oder nicht: "))
 
             squadSQL = f"""INSERT INTO squads (squadName, homeTown, formed, status, secretBase, active)
-            VALUES ("{Eingabe1}", "{Eingabe2}", "{Eingabe3}", "{Eingabe4}", "{Eingabe5}", "{Eingabe6}");"""  # funktioniert, jetzt noch für power und members
-
+            VALUES ("{E1}", "{E2}", "{E3}", "{E4}", "{E5}", "{E6}");"""
             self.cursor.execute(squadSQL)
             self.connection.commit()
         else:
@@ -160,16 +159,20 @@ class editColumns:
 
     def delData(self, whatToDel):
         if whatToDel == "squad" or "Squad":
-            Eingabe1 = input("gebe die ID des zu löschenden squads ein: ")
-            squadSQL = f"""DELETE FROM squadMembers
-            WHERE squadID = {Eingabe1} """
-            self.cursor.execute(squadSQL)
+            E1 = input("gebe die ID des zu löschenden squads ein: ")
+            squadMembersSQL = f"""DELETE FROM squadMembers
+            WHERE squadID = {E1} """
+            self.cursor.execute(squadMembersSQL)
             self.connection.commit()
 
             squadSQL = f"""DELETE FROM squads 
-            WHERE squadID = {Eingabe1} """
+            WHERE squadID = {E1} """
             self.cursor.execute(squadSQL)
             self.connection.commit()
+
+    def editData(self, whatToEdit):
+        if whatToEdit == "squad" or "Squad":
+            Eingabe1 = input("welches squad wollen sie bearbeiten?(normal 1-11): ")
 
 
 with open("/home/yw/einarbeitung/03_Dateiformate/base1.json", "r") as file:
@@ -182,4 +185,4 @@ database.createTables()
 database.insertData(data)
 editcolumns = editColumns(db)
 # editcolumns.AddNewData("squad")
-editcolumns.delData("squad")
+# editcolumns.delData("squad")
