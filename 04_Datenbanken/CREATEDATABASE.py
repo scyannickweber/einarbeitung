@@ -21,7 +21,7 @@ class Database:
         self.connection.commit()
 
     def createTables(self):
-        create_squads_table = """
+        createSquadsTable = """
         CREATE TABLE IF NOT EXISTS squads (
             squadID INT AUTO_INCREMENT PRIMARY KEY,
             squadName VARCHAR(50),
@@ -32,9 +32,9 @@ class Database:
             active TINYINT(1)
         );
         """
-        self.cursor.execute(create_squads_table)
+        self.cursor.execute(createSquadsTable)
 
-        create_members_table = """
+        createMembersTable = """
         CREATE TABLE IF NOT EXISTS members (
             memberID INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(50),
@@ -42,10 +42,10 @@ class Database:
             secretIdentity VARCHAR(50)
         );
         """
-        self.cursor.execute(create_members_table)
+        self.cursor.execute(createMembersTable)
 
-        create_squad_members_table = """
-        CREATE TABLE IF NOT EXISTS squad_members (
+        createSquadMembersTable = """
+        CREATE TABLE IF NOT EXISTS squadMembers (
             squadID INT,
             memberID INT,
             PRIMARY KEY (squadID, memberID),
@@ -53,17 +53,25 @@ class Database:
             FOREIGN KEY (memberID) REFERENCES members(memberID)
         );
         """
-        self.cursor.execute(create_squad_members_table)
+        self.cursor.execute(createSquadMembersTable)
 
-        create_powers_table = """
+        createPowersTable = """
             CREATE TABLE IF NOT EXISTS powers (
             powerID INT AUTO_INCREMENT PRIMARY KEY,
-            memberID INT,
-            powers VARCHAR(255),
-            FOREIGN KEY (memberID) REFERENCES members(memberID)
-            )
+            powers VARCHAR(255)
+            );
             """
-        self.cursor.execute(create_powers_table)
+        self.cursor.execute(createPowersTable)
+
+        createMemberPowersTable = """
+            CREATE TABLE IF NOT EXISTS memberPowers(
+            powerID INT,
+            memberID INT,
+            PRIMARY KEY(powerID, memberID),
+            FOREIGN KEY (powerID) REFERENCES powers(powerID),
+            FOREIGN KEY (memberID) REFERENCES members(memberID))"""
+
+        self.cursor.execute(createMemberPowersTable)
 
         self.connection.commit()
 
@@ -104,11 +112,11 @@ class Database:
                 self.cursor.execute(memberSQL, memberValues)
                 memberID = self.cursor.lastrowid
 
-                linkSquadMemberSQL = """
-                INSERT INTO squad_members (squadID, memberID)
+                linkSquadMember = """
+                INSERT INTO squadMembers (squadID, memberID)
                 VALUES (%s, %s)
                 """
-                self.cursor.execute(linkSquadMemberSQL, (squadID, memberID))
+                self.cursor.execute(linkSquadMember, (squadID, memberID))
 
                 for power in member["powers"]:
                     powerSQL = """
@@ -117,6 +125,13 @@ class Database:
                     """
                     powerValue = (power,)
                     self.cursor.execute(powerSQL, powerValue)
+                    powerID = self.cursor.lastrowid
+
+                    linkMemberPowers = """
+                    INSERT INTO memberPowers (powerID, memberID)
+                    VALUES (%s, %s)
+                    """
+                    self.cursor.execute(linkMemberPowers, (powerID, memberID))
 
         self.connection.commit()
 
