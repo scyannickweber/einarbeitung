@@ -135,9 +135,41 @@ class Database:
 
         self.connection.commit()
 
-    def closeConnection(self):
-        self.cursor.close()
-        self.connection.close()
+
+class editColumns:
+    def __init__(self, connection):
+        self.connection = connection
+        self.cursor = self.connection.cursor()
+
+    def AddNewData(self, whatToAdd):
+        if whatToAdd == "squad" or "Squad":
+            Eingabe1 = str(input("gebe den Namen des squads ein: "))
+            Eingabe2 = str(input("gebe die Stadt des squads ein: "))
+            Eingabe3 = int(input("Gründungsdatum angeben: "))
+            Eingabe4 = str(input("gebe den status des squads ein: "))
+            Eingabe5 = str(input("gebe die Geheimbasis an: "))
+            Eingabe6 = int(input("gebe an ob das squad acitv ist oder nicht: "))
+
+            squadSQL = f"""INSERT INTO squads (squadName, homeTown, formed, status, secretBase, active)
+            VALUES ("{Eingabe1}", "{Eingabe2}", "{Eingabe3}", "{Eingabe4}", "{Eingabe5}", "{Eingabe6}");"""  # funktioniert, jetzt noch für power und members
+
+            self.cursor.execute(squadSQL)
+            self.connection.commit()
+        else:
+            return
+
+    def delData(self, whatToDel):
+        if whatToDel == "squad" or "Squad":
+            Eingabe1 = input("gebe die ID des zu löschenden squads ein: ")
+            squadSQL = f"""DELETE FROM squadMembers
+            WHERE squadID = {Eingabe1} """
+            self.cursor.execute(squadSQL)
+            self.connection.commit()
+
+            squadSQL = f"""DELETE FROM squads 
+            WHERE squadID = {Eingabe1} """
+            self.cursor.execute(squadSQL)
+            self.connection.commit()
 
 
 with open("/home/yw/einarbeitung/03_Dateiformate/base1.json", "r") as file:
@@ -148,4 +180,6 @@ database = Database(db)
 database.createDatabase()
 database.createTables()
 database.insertData(data)
-database.closeConnection()
+editcolumns = editColumns(db)
+# editcolumns.AddNewData("squad")
+editcolumns.delData("squad")
