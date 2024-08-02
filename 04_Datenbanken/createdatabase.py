@@ -20,11 +20,13 @@ class Database:
         self.cursor = self.connection.cursor()
 
     def create_database(self):
+        """erstellung Datenbank"""
         self.cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
         self.connection.commit()
 
     def create_tables(self):
-        createSquadsTable = """
+        """erstellung der Tables"""
+        create_squads_table = """
         CREATE TABLE IF NOT EXISTS squads (
             squadID INT AUTO_INCREMENT PRIMARY KEY,
             squadName VARCHAR(50),
@@ -35,9 +37,9 @@ class Database:
             active TINYINT(1)
         );
         """
-        self.cursor.execute(createSquadsTable)
+        self.cursor.execute(create_squads_table)
 
-        createMembersTable = """
+        create_members_table = """
         CREATE TABLE IF NOT EXISTS members (
             memberID INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(50),
@@ -45,9 +47,9 @@ class Database:
             secretIdentity VARCHAR(50)
         );
         """
-        self.cursor.execute(createMembersTable)
+        self.cursor.execute(create_members_table)
 
-        createSquadMembersTable = """
+        create_squadmembers_table = """
         CREATE TABLE IF NOT EXISTS squadMembers (
             squadID INT,
             memberID INT,
@@ -56,17 +58,17 @@ class Database:
             FOREIGN KEY (memberID) REFERENCES members(memberID)
         );
         """
-        self.cursor.execute(createSquadMembersTable)
+        self.cursor.execute(create_squadmembers_table)
 
-        createPowersTable = """
+        create_powers_table = """
             CREATE TABLE IF NOT EXISTS powers (
             powerID INT AUTO_INCREMENT PRIMARY KEY,
             powers VARCHAR(255)
             );
             """
-        self.cursor.execute(createPowersTable)
+        self.cursor.execute(create_powers_table)
 
-        createMemberPowersTable = """
+        create_memberpowers_table = """
             CREATE TABLE IF NOT EXISTS memberPowers(
             powerID INT,
             memberID INT,
@@ -74,21 +76,24 @@ class Database:
             FOREIGN KEY (powerID) REFERENCES powers(powerID),
             FOREIGN KEY (memberID) REFERENCES members(memberID))"""
 
-        self.cursor.execute(createMemberPowersTable)
+        self.cursor.execute(create_memberpowers_table)
 
         self.connection.commit()
 
     def insert_data(self, data):
-        with open("/home/yw/einarbeitung/03_Dateiformate/base1.json", "r") as file:
-            data = json.load(file)
+        """Daten in Tables einfügen und verknüpfen"""
+        with open(
+            "/home/yw/einarbeitung/03_Dateiformate/base1.json", "r", encoding="utf-8"
+        ) as json_file:
+            data = json.load(json_file)
 
         for squad in data:
-            squadSql = """
+            squad_sql = """
             INSERT INTO squads (squadName, homeTown, formed, status, secretBase, active)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
 
-            squadValues = (
+            squad_values = (
                 squad["squadName"],
                 squad["homeTown"],
                 squad["formed"],
@@ -97,97 +102,96 @@ class Database:
                 squad["active"],
             )
 
-            self.cursor.execute(squadSql, squadValues)
-            squadID = self.cursor.lastrowid
+            self.cursor.execute(squad_sql, squad_values)
+            squad_id = self.cursor.lastrowid
 
             for member in squad["members"]:
-                memberSQL = """
+                member_sql = """
                 INSERT INTO members (name, age, secretIdentity)
                 VALUES (%s, %s, %s)
                 """
 
-                memberValues = (
+                member_values = (
                     member["name"],
                     member["age"],
                     member["secretIdentity"],
                 )
 
-                self.cursor.execute(memberSQL, memberValues)
-                memberID = self.cursor.lastrowid
+                self.cursor.execute(member_sql, member_values)
+                member_id = self.cursor.lastrowid
 
-                linkSquadMember = """
+                link_squad_member = """
                 INSERT INTO squadMembers (squadID, memberID)
                 VALUES (%s, %s)
                 """
-                self.cursor.execute(linkSquadMember, (squadID, memberID))
+                self.cursor.execute(link_squad_member, (squad_id, member_id))
 
                 for power in member["powers"]:
-                    powerSQL = """
+                    power_sql = """
                     INSERT INTO powers (powers)
                     VALUES (%s)
                     """
-                    powerValue = (power,)
-                    self.cursor.execute(powerSQL, powerValue)
-                    powerID = self.cursor.lastrowid
+                    power_value = (power,)
+                    self.cursor.execute(power_sql, power_value)
+                    power_id = self.cursor.lastrowid
 
-                    linkMemberPowers = """
+                    link_member_powers = """
                     INSERT INTO memberPowers (powerID, memberID)
                     VALUES (%s, %s)
                     """
-                    self.cursor.execute(linkMemberPowers, (powerID, memberID))
+                    self.cursor.execute(link_member_powers, (power_id, member_id))
 
         self.connection.commit()
 
 
-class edit_columns:
+class EditColumns:
+    """bestehende Daten Lösche, bearbeiten oder erstellen"""
+
     def __init__(self, connection):
         self.connection = connection
         self.cursor = self.connection.cursor()
 
-    def add_new_data(self, whatToAdd):
-        if whatToAdd == "squad" or "Squad":
-            E1 = str(input("gebe den Namen des squads ein: "))
-            E2 = str(input("gebe die Stadt des squads ein: "))
-            E3 = int(input("Gründungsdatum angeben: "))
-            E4 = str(input("gebe den status des squads ein: "))
-            E5 = str(input("gebe die Geheimbasis an: "))
-            E6 = int(input("gebe an ob das squad acitv ist oder nicht: "))
+    def add_new_data(self, what_to_add):
+        """Daten hinzufügen"""
+        if what_to_add == "squad":
+            e1 = str(input("gebe den Namen des squads ein: "))
+            e2 = str(input("gebe die Stadt des squads ein: "))
+            e3 = int(input("Gründungsdatum angeben: "))
+            e4 = str(input("gebe den status des squads ein: "))
+            e5 = str(input("gebe die Geheimbasis an: "))
+            e6 = int(input("gebe an ob das squad acitv ist oder nicht: "))
 
-            squadSQL = f"""INSERT INTO squads(squadName, homeTown,
+            squad_sql = f"""INSERT INTO squads(squadName, homeTown,
             formed, status, secretBase, active)
-            VALUES ("{E1}", "{E2}", "{E3}", "{E4}", "{E5}", "{E6}");"""
-            self.cursor.execute(squadSQL)
-            self.connection.commit()
-        else:
-            return
-
-    def del_data(self, whatToDel):
-        if whatToDel == "squad" or "Squad":
-            E1 = input("gebe die ID des zu löschenden squads ein: ")
-            squadMembersSQL = f"""DELETE FROM squadMembers
-            WHERE squadID = {E1} """
-            self.cursor.execute(squadMembersSQL)
+            VALUES ("{e1}", "{e2}", "{e3}", "{e4}", "{e5}", "{e6}");"""
+            self.cursor.execute(squad_sql)
             self.connection.commit()
 
-            squadSQL = f"""DELETE FROM squads 
-            WHERE squadID = {E1} """
-            self.cursor.execute(squadSQL)
+    def del_data(self, what_to_del):
+        """Daten Löschen"""
+        if what_to_del == "squad":
+            e1 = input("gebe die ID des zu löschenden squads ein: ")
+            squad_members_sql = f"""DELETE FROM squadMembers
+            WHERE squadID = {e1} """
+            self.cursor.execute(squad_members_sql)
             self.connection.commit()
 
-    def edit_data(self):
-        pass
+            squad_sql = f"""DELETE FROM squads
+            WHERE squadID = {e1} """
+            self.cursor.execute(squad_sql)
+            self.connection.commit()
 
 
 with open(
     "/home/yw/einarbeitung/03_Dateiformate/base1.json", "r", encoding="utf-8"
-) as json_file:
-    data = json.load(json_file)
+) as file:
+    datei = json.load(file)
 
 
 database = Database(db)
 database.create_database()
 database.create_tables()
-database.insert_data(data)
-editcolumns = edit_columns(db)
+database.insert_data(datei)
+editcolumns = EditColumns(db)
 # editcolumns.AddNewData("squad")
 # editcolumns.delData("squad")
