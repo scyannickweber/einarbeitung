@@ -82,10 +82,6 @@ class Database:
 
     def insert_data(self, data):
         """Daten in Tables einfügen und verknüpfen"""
-        with open(
-            "/home/yw/einarbeitung/03_Dateiformate/base1.json", "r", encoding="utf-8"
-        ) as json_file:
-            data = json.load(json_file)
 
         for squad in data:
             squad_sql = """
@@ -120,11 +116,13 @@ class Database:
                 self.cursor.execute(member_sql, member_values)
                 member_id = self.cursor.lastrowid
 
-                link_squad_member = """
-                INSERT INTO squadMembers (squadID, memberID)
-                VALUES (%s, %s)
-                """
-                self.cursor.execute(link_squad_member, (squad_id, member_id))
+                self.cursor.execute(
+                    """
+                    INSERT INTO squadMembers (squadID, memberID)
+                    VALUES (%s, %s)
+                    """,
+                    (squad_id, member_id),
+                )
 
                 for power in member["powers"]:
                     power_sql = """
@@ -135,11 +133,13 @@ class Database:
                     self.cursor.execute(power_sql, power_value)
                     power_id = self.cursor.lastrowid
 
-                    link_member_powers = """
-                    INSERT INTO memberPowers (powerID, memberID)
-                    VALUES (%s, %s)
-                    """
-                    self.cursor.execute(link_member_powers, (power_id, member_id))
+                    self.cursor.execute(
+                        """
+                        INSERT INTO memberPowers (powerID, memberID)
+                        VALUES (%s, %s)
+                        """,
+                        (power_id, member_id),
+                    )
 
         self.connection.commit()
 
