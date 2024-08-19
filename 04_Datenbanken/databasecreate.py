@@ -56,9 +56,10 @@ class Create_db:
         self.cursor.execute(create_powers_table)
         self.cursor.execute(
             """
-                            ALTER TABLE members
-                            ADD CONSTRAINT powerID
-                            FOREIGN KEY (powerID) REFERENCES members(powerID);"""
+            ALTER TABLE members
+            ADD CONSTRAINT powerID
+            FOREIGN KEY (powerID) REFERENCES members(powerID);
+            """
         )
 
         self.connection.commit()
@@ -84,7 +85,6 @@ class Create_db:
 
             self.cursor.execute(squadSql, squadValues)
             squadID = self.cursor.lastrowid
-            # self.connection.commit()  # Bis hierhin funktioniert das einfügen gut
 
         for member in squad["members"]:
             memberSQL = """
@@ -115,10 +115,6 @@ class Create_db:
 conn = mysql.connector.connect(
     host="localhost", user="root", password="root", database="superhero_db"
 )
-
-
-cursor = conn.cursor()
-cursor.execute("USE superhero_db")
 
 db = Create_db(conn)
 db.create_tables()
