@@ -7,9 +7,6 @@ db = mysql.connector.connect(host="localhost", user="root", password="root")
 cursor = db.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
 
-# erstellung erstmal ohne dann mit Database = "superhero_db"
-# alles innerhalb einer Klasse mit Funktionen
-
 
 class Create_db:
     def __init__(self, connection):
@@ -110,6 +107,9 @@ class Create_db:
             self.cursor.execute(powerSql, powerValues)
 
         self.connection.commit()
+
+    class removeColumn:
+        pass
 
 
 conn = mysql.connector.connect(
