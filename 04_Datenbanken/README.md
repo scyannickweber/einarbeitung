@@ -13,9 +13,9 @@ Die Daten sollen in einer Datenbank gespeichert werden.
 ### Fragen:
 
 - Welche Datenbanken gibt es? SQL, SQLite
-   - MySQL, Microsoft Access, Oracle Database 
+   - MySQL, Microsoft SQL Server, Oracle Database 
 - Wann macht welcher Typ Sinn? SQL bei gleichbleibenden Attributen.
-   - xyz
+   - SQLite macht sinn, bei eher kleineren Datenbankanwendungen und wenn diese lokal ausgeführt wird. MySQL ist Sinnvoll, wenn große Datenbanken geht z.B. Webanwendungen mit mehreren gleichzeitigen Nutzern und wenn die Sicherheit und Verfügbarkeit wichtig ist.
 - Was ist ein Primary Key und was ein Foreign Key?
    - Ein Primary Key ist ein eindeutiger Bezeichner für eine Zeile in einer Tabelle und ein ein Foreign Key ist ein Attribut in einer Tabelle, das auf den Primary Key einer anderen Tabelle verweist.
 - Was ist ein nativer und was ein künstlicher Primary Key?.
