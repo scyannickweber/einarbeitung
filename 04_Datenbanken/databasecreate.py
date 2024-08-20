@@ -1,23 +1,30 @@
 """Bearbeitung Aufgabe 04"""
 
-import mysql.connector
 import json
+import mysql.connector
 
 db = mysql.connector.connect(host="localhost", user="root", password="root")
 cursor = db.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
+db = mysql.connector.connect(
+    host="localhost", user="root", password="root", database="superhero_db"
+)
 
 
-class Create_db:
+class Database:
+    """erstellung der Datenbank und Tables"""
+
     def __init__(self, connection):
         self.connection = connection
         self.cursor = self.connection.cursor()
 
     def create_database(self):
-        cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
+        """erstellung Datenbank"""
+        self.cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
         self.connection.commit()
 
     def create_tables(self):
+        """erstellung der Tables"""
         create_squads_table = """
         CREATE TABLE IF NOT EXISTS squads (
             squadID INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,48 +37,55 @@ class Create_db:
         );
         """
         self.cursor.execute(create_squads_table)
-
         create_members_table = """
         CREATE TABLE IF NOT EXISTS members (
             memberID INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(50),
             age INT,
-            secretIdentity VARCHAR(50),
-            squadID INT,
-            FOREIGN KEY (squadID) REFERENCES squads(squadID),
-            powerID INT CONSTRAINT
-        )
+            secretIdentity VARCHAR(50)
+        );
         """
         self.cursor.execute(create_members_table)
-
+        create_squadmembers_table = """
+        CREATE TABLE IF NOT EXISTS squadMembers (
+            squadID INT,
+            memberID INT,
+            PRIMARY KEY (squadID, memberID),
+            FOREIGN KEY (squadID) REFERENCES squads(squadID),
+            FOREIGN KEY (memberID) REFERENCES members(memberID)
+        );
+        """
+        self.cursor.execute(create_squadmembers_table)
         create_powers_table = """
             CREATE TABLE IF NOT EXISTS powers (
             powerID INT AUTO_INCREMENT PRIMARY KEY,
-            power VARCHAR(50)
-            )
+            powers VARCHAR(255)
+            );
             """
         self.cursor.execute(create_powers_table)
-        self.cursor.execute(
-            """
-            ALTER TABLE members
-            ADD CONSTRAINT powerID
-            FOREIGN KEY (powerID) REFERENCES members(powerID);
-            """
-        )
-
+        create_memberpowers_table = """
+            CREATE TABLE IF NOT EXISTS memberPowers(
+            powerID INT,
+            memberID INT,
+            PRIMARY KEY(powerID, memberID),
+            FOREIGN KEY (powerID) REFERENCES powers(powerID),
+            FOREIGN KEY (memberID) REFERENCES members(memberID))"""
+        self.cursor.execute(create_memberpowers_table)
         self.connection.commit()
 
-    def insert_data(self):
-        with open("base1.json", "r", encoding="utf-8") as json_file:
+    def insert_data(self, data):
+        """Daten in Tables einfügen und verknüpfen"""
+        with open(
+            "/home/yw/einarbeitung/03_Dateiformate/base1.json", "r", encoding="utf-8"
+        ) as json_file:
             data = json.load(json_file)
 
         for squad in data:
-            squadSql = """
+            squad_sql = """
             INSERT INTO squads (squadName, homeTown, formed, status, secretBase, active)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
-
-            squadValues = (
+            squad_values = (
                 squad["squadName"],
                 squad["homeTown"],
                 squad["formed"],
@@ -79,44 +93,52 @@ class Create_db:
                 squad["secretBase"],
                 squad["active"],
             )
-
-            self.cursor.execute(squadSql, squadValues)
-            squadID = self.cursor.lastrowid
-
-        for member in squad["members"]:
-            memberSQL = """
-                    INSERT INTO members (name, age, secretIdentity)
-                    VALUES (%s, %s, %s)
+            self.cursor.execute(squad_sql, squad_values)
+            squad_id = self.cursor.lastrowid
+            for member in squad["members"]:
+                member_sql = """
+                INSERT INTO members (name, age, secretIdentity)
+                VALUES (%s, %s, %s)
+                """
+                member_values = (
+                    member["name"],
+                    member["age"],
+                    member["secretIdentity"],
+                )
+                self.cursor.execute(member_sql, member_values)
+                member_id = self.cursor.lastrowid
+                self.cursor.execute(
                     """
+                    INSERT INTO squadMembers (squadID, memberID)
+                    VALUES (%s, %s)
+                    """,
+                    (squad_id, member_id),
+                )
 
-            memberValues = (
-                member["name"],
-                member["age"],
-                member["secretIdentity"],
-            )
-
-            self.cursor.execute(memberSQL, memberValues)
-            memberID = self.cursor.lastrowid
-
-        for power in member["powers"]:
-            powerSql = """
-                INSERT INTO powers (power, IDmember)
-                VALUES (%s, %s)
+                for power in member["powers"]:
+                    power_sql = """
+                    INSERT INTO powers (powers)
+                    VALUES (%s)
                     """
-            powerValues = (power, memberID)
-            self.cursor.execute(powerSql, powerValues)
+                    power_value = (power,)
+                    self.cursor.execute(power_sql, power_value)
+                    power_id = self.cursor.lastrowid
+                    self.cursor.execute(
+                        """
+                        INSERT INTO memberPowers (powerID, memberID)
+                        VALUES (%s, %s)
+                        """,
+                        (power_id, member_id),
+                    )
 
         self.connection.commit()
 
-    class removeColumn:
-        pass
 
-
-conn = mysql.connector.connect(
-    host="localhost", user="root", password="root", database="superhero_db"
-)
-
-db = Create_db(conn)
-db.create_tables()
-db.insert_data()
-conn.close()
+with open(
+    "/home/yw/einarbeitung/03_Dateiformate/base1.json", "r", encoding="utf-8"
+) as file:
+    datei = json.load(file)
+database = Database(db)
+database.create_database()
+database.create_tables()
+database.insert_data(datei)
