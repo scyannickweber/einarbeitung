@@ -2,8 +2,13 @@
 
 import json
 import mysql.connector
+import os
+from dotenv import load_dotenv
 
-db = mysql.connector.connect(host="localhost", user="root", password="root")
+load_dotenv()
+db = mysql.connector.connect(
+    host="localhost", user="root", password=os.getenv("MY_KEY")
+)
 cursor = db.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
 db = mysql.connector.connect(
@@ -134,6 +139,84 @@ class Database:
         self.connection.commit()
 
 
+class EditColumns:
+    """Class to Edit a Squad, Member or power"""
+
+    def __init__(self, connection):
+        self.connection = connection
+        self.cursor = self.connection.cursor()
+
+    def add_new_data(self, what_to_add):
+        """Adds a New Squad, Member or Power"""
+        if what_to_add == "squad":
+            e1 = str(input("Gebe den Namen des squads ein: "))
+            e2 = str(input("Gebe die Stadt des squads ein: "))
+            e3 = int(input("Gründungsdatum angeben: "))
+            e4 = str(input("Gebe den status des squads ein: "))
+            e5 = str(input("Gebe die Geheimbasis an: "))
+            e6 = int(input("Gebe an ob das squad acitv ist oder nicht: "))
+            squad_sql = f"""INSERT INTO squads
+            (squadName, homeTown, formed, status, secretBase, active)
+            VALUES ("{e1}", "{e2}", "{e3}", "{e4}", "{e5}", "{e6}");"""
+            self.cursor.execute(squad_sql)
+            self.connection.commit()
+            print("\nDein Squad wurde hinzugefügt\n")
+        if what_to_add == "member":
+            e1 = str(input("Gebe den Namen des Members ein: "))
+            e2 = int(input("Gebe das Alter des Mebers ein: "))
+            e3 = str(input("Gebe die geheime Identität des Members ein: "))
+            e4 = int(input("zu welchem Team gehört der Member: "))
+            member_sql = f"""INSERT INTO members (name, age, secretIdentity)
+            VALUES ("{e1}", "{e2}", "{e3}");"""
+            self.cursor.execute(member_sql)
+            self.connection.commit()
+            print("\nDer Member wurde hinzugefügt\n")
+
+    def del_data(self, what_to_del):
+        """Deletes a chosen Squad, Member or power"""
+        if what_to_del == "squad":
+            squad_del_id = input("gebe die ID des zu löschenden squads ein: ")
+            squad_members_sql = f"""DELETE FROM squadMembers
+            WHERE squadID = {squad_del_id} """
+            self.cursor.execute(squad_members_sql)
+            self.connection.commit()
+            squad_sql = f"""DELETE FROM squads WHERE squadID = {squad_del_id} """
+            self.cursor.execute(squad_sql)
+            self.connection.commit()
+            print("\nDas Squad wurde gelöscht\n")
+
+        if what_to_del == "member":
+            member_del_id = input("gebe die ID des zu löschenden members an: ")
+            squad_members_sql = f"""DELETE FROM squadMembers
+            WHERE memberID = {member_del_id} """
+            self.cursor.execute(squad_members_sql)
+            self.connection.commit()
+            member_powers_sql = (
+                f"""DELETE FROM memberPowers WHERE memberID = {member_del_id}"""
+            )
+            self.cursor.execute(member_powers_sql)
+            self.connection.commit()
+            member_sql = f"""DELETE FROM members WHERE memberID = {member_del_id} """
+            self.cursor.execute(member_sql)
+            self.connection.commit()
+            print("\nDer Member wurde gelöscht\n")
+
+    def edit_data(self, what_to_edit):
+        """edit a chosen squad, member or power"""
+        if what_to_edit == "squad":
+            squad_id = int(
+                input("gebe die Id des squads ein, dass du bearbeiten möchtest ")
+            )
+            e1 = int(input("""was möchtest du ändern? (1-6)"""))
+            if e1 == 1:
+                new_squadname = str(input("gebe den neuen squadname ein: "))
+                squad_name_edit = f"""UPDATE squads SET squadName = "{new_squadname}" 
+                WHERE squadID = "{squad_id}" """
+                self.cursor.execute(squad_name_edit)
+                self.connection.commit()
+                print("\nSquadname wurde geändert\n")
+
+
 with open(
     "/home/yw/einarbeitung/03_Dateiformate/base1.json", "r", encoding="utf-8"
 ) as file:
@@ -142,3 +225,6 @@ database = Database(db)
 database.create_database()
 database.create_tables()
 database.insert_data(datei)
+editcolumns = EditColumns(db)
+editcolumns.edit_data("squad")
+# editcolumns.del_data("member")
