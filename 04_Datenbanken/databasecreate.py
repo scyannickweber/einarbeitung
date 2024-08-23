@@ -56,8 +56,8 @@ class Database:
             squadID INT,
             memberID INT,
             PRIMARY KEY (squadID, memberID),
-            FOREIGN KEY (squadID) REFERENCES squads(squadID),
-            FOREIGN KEY (memberID) REFERENCES members(memberID)
+            FOREIGN KEY (squadID) REFERENCES squads(squadID) ON DELETE CASCADE,
+            FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE CASCADE
         );
         """
         self.cursor.execute(create_squadmembers_table)
@@ -74,7 +74,7 @@ class Database:
             memberID INT,
             PRIMARY KEY(powerID, memberID),
             FOREIGN KEY (powerID) REFERENCES powers(powerID),
-            FOREIGN KEY (memberID) REFERENCES members(memberID))"""
+            FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE CASCADE)"""
         self.cursor.execute(create_memberpowers_table)
         self.connection.commit()
 
@@ -178,28 +178,14 @@ class EditColumns:
         """Deletes a chosen Squad, Member or power"""
         if what_to_del == "squad":
             squad_del_id = input("gebe die ID des zu löschenden squads ein: ")
-            squad_members_sql = """DELETE FROM squadMembers
-            WHERE squadID = %s """
-            squad_value = (squad_del_id,)
-            self.cursor.execute(squad_members_sql, squad_value)
-            self.connection.commit()
             squad_sql = """DELETE FROM squads WHERE squadID = %s """
             squad_value = (squad_del_id,)
-            self.cursor.execute(squad_sql)
+            self.cursor.execute(squad_sql, squad_value)
             self.connection.commit()
             print("\nDas Squad wurde gelöscht\n")
 
         if what_to_del == "member":
             member_del_id = input("gebe die ID des zu löschenden members an: ")
-            squad_members_sql = """DELETE FROM squadMembers
-            WHERE memberID = %s"""
-            member_value = (member_del_id,)
-            self.cursor.execute(squad_members_sql, member_value)
-            self.connection.commit()
-            member_powers_sql = """DELETE FROM memberPowers WHERE memberID = %s"""
-            memberpower_value = (member_del_id,)
-            self.cursor.execute(member_powers_sql, memberpower_value)
-            self.connection.commit()
             member_sql = """DELETE FROM members WHERE memberID = %s """
             member_value = (member_del_id,)
             self.cursor.execute(member_sql, member_value)
