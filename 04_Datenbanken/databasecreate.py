@@ -56,8 +56,8 @@ class Database:
             squadID INT,
             memberID INT,
             PRIMARY KEY (squadID, memberID),
-            FOREIGN KEY (squadID) REFERENCES squads(squadID),
-            FOREIGN KEY (memberID) REFERENCES members(memberID)
+            FOREIGN KEY (squadID) REFERENCES squads(squadID) ON DELETE CASCADE,
+            FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE CASCADE
         );
         """
         self.cursor.execute(create_squadmembers_table)
@@ -74,7 +74,7 @@ class Database:
             memberID INT,
             PRIMARY KEY(powerID, memberID),
             FOREIGN KEY (powerID) REFERENCES powers(powerID),
-            FOREIGN KEY (memberID) REFERENCES members(memberID))"""
+            FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE CASCADE)"""
         self.cursor.execute(create_memberpowers_table)
         self.connection.commit()
 
@@ -155,10 +155,11 @@ class EditColumns:
             e4 = str(input("Gebe den status des squads ein: "))
             e5 = str(input("Gebe die Geheimbasis an: "))
             e6 = int(input("Gebe an ob das squad acitv ist oder nicht: "))
-            squad_sql = f"""INSERT INTO squads
+            squad_sql = """INSERT INTO squads
             (squadName, homeTown, formed, status, secretBase, active)
-            VALUES ("{e1}", "{e2}", "{e3}", "{e4}", "{e5}", "{e6}");"""
-            self.cursor.execute(squad_sql)
+            VALUES (%s, %s, %s, %s, %s, %s);"""
+            squad_values = (e1, e2, e3, e4, e5, e6)
+            self.cursor.execute(squad_sql, squad_values)
             self.connection.commit()
             print("\nDein Squad wurde hinzugefügt\n")
         if what_to_add == "member":
@@ -166,9 +167,10 @@ class EditColumns:
             e2 = int(input("Gebe das Alter des Mebers ein: "))
             e3 = str(input("Gebe die geheime Identität des Members ein: "))
             e4 = int(input("zu welchem Team gehört der Member: "))
-            member_sql = f"""INSERT INTO members (name, age, secretIdentity)
-            VALUES ("{e1}", "{e2}", "{e3}");"""
-            self.cursor.execute(member_sql)
+            member_sql = """INSERT INTO members (name, age, secretIdentity)
+            VALUES (%s, %s, %s);"""
+            member_values = (e1, e2, e3)
+            self.cursor.execute(member_sql, member_values)
             self.connection.commit()
             print("\nDer Member wurde hinzugefügt\n")
 
@@ -176,28 +178,17 @@ class EditColumns:
         """Deletes a chosen Squad, Member or power"""
         if what_to_del == "squad":
             squad_del_id = input("gebe die ID des zu löschenden squads ein: ")
-            squad_members_sql = f"""DELETE FROM squadMembers
-            WHERE squadID = {squad_del_id} """
-            self.cursor.execute(squad_members_sql)
-            self.connection.commit()
-            squad_sql = f"""DELETE FROM squads WHERE squadID = {squad_del_id} """
-            self.cursor.execute(squad_sql)
+            squad_sql = """DELETE FROM squads WHERE squadID = %s """
+            squad_value = (squad_del_id,)
+            self.cursor.execute(squad_sql, squad_value)
             self.connection.commit()
             print("\nDas Squad wurde gelöscht\n")
 
         if what_to_del == "member":
             member_del_id = input("gebe die ID des zu löschenden members an: ")
-            squad_members_sql = f"""DELETE FROM squadMembers
-            WHERE memberID = {member_del_id} """
-            self.cursor.execute(squad_members_sql)
-            self.connection.commit()
-            member_powers_sql = (
-                f"""DELETE FROM memberPowers WHERE memberID = {member_del_id}"""
-            )
-            self.cursor.execute(member_powers_sql)
-            self.connection.commit()
-            member_sql = f"""DELETE FROM members WHERE memberID = {member_del_id} """
-            self.cursor.execute(member_sql)
+            member_sql = """DELETE FROM members WHERE memberID = %s """
+            member_value = (member_del_id,)
+            self.cursor.execute(member_sql, member_value)
             self.connection.commit()
             print("\nDer Member wurde gelöscht\n")
 
@@ -210,9 +201,10 @@ class EditColumns:
             e1 = int(input("""was möchtest du ändern? (1-6)"""))
             if e1 == 1:
                 new_squadname = str(input("gebe den neuen squadname ein: "))
-                squad_name_edit = f"""UPDATE squads SET squadName = "{new_squadname}" 
-                WHERE squadID = "{squad_id}" """
-                self.cursor.execute(squad_name_edit)
+                squad_name_edit = """UPDATE squads SET squadName = %s 
+                WHERE squadID = %s """
+                squad_value = (new_squadname, squad_id)
+                self.cursor.execute(squad_name_edit, squad_value)
                 self.connection.commit()
                 print("\nSquadname wurde geändert\n")
 
@@ -226,5 +218,6 @@ database.create_database()
 database.create_tables()
 database.insert_data(datei)
 editcolumns = EditColumns(db)
-editcolumns.edit_data("squad")
-# editcolumns.del_data("member")
+editcolumns.edit_data("member")
+editcolumns.del_data("member")
+
