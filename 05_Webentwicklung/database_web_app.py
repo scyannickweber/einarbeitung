@@ -212,19 +212,19 @@ database.insert_data(datei)
 
 
 @app.route('/')
-def home():
+def home() -> None:
     """renders the homepage"""
     return render_template("home.html")
 
 @app.route('/squads')
-def show_squads():
+def show_squads() -> None:
     """show all Squads"""
     cursor.execute("SELECT * FROM squads")
     squads = cursor.fetchall()
     return render_template("squads.html", squads=squads)
 
 @app.route('/squads/<int:squad_id>')
-def show_squad_members(squad_id):
+def show_squad_members(squad_id: int) -> None:
     """shows members of a Squad"""
     cursor.execute("""
         SELECT m.name, m.age, m.secretIdentity 
@@ -236,7 +236,7 @@ def show_squad_members(squad_id):
     return render_template("squad_members.html", members=members, squad_id=squad_id)
 
 @app.route('/squad_del/<int:squad_id>', methods=['GET', 'POST', 'DELETE'])
-def squad_del(squad_id):
+def squad_del(squad_id: int) -> None:
     """Deletes a Squad"""
     cursor.execute("DELETE FROM squads WHERE squadID = %s", (squad_id,))
     db.commit()
@@ -245,7 +245,7 @@ def squad_del(squad_id):
     return redirect(url_for('show_squads'))  
 
 @app.route('/squad_edit/<int:squad_id>', methods=['GET', 'POST'])
-def squad_edit(squad_id):
+def squad_edit(squad_id: int) -> None:
     """edit a Squad"""
     if request.method == 'POST':
         squad_name = request.form['squadName']
