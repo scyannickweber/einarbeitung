@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+    <title>Squad Members</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Members of Squad {{ squad_id }}</h1>
+    <table id="members">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Secret Identity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ member[0] }}</td>
+                <td>{{ member[1] }}</td>
+                <td>{{ member[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <a href="{{ url_for('show_squads') }}">Zurück zur Squad Liste</a>
+</body>
+</html>
