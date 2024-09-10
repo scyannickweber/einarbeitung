@@ -8,10 +8,7 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = os.getenv("MY_KEY")
-app.config['MYSQL_DB'] = 'superhero_db'
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 load_dotenv()
@@ -21,8 +18,9 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
 db = mysql.connector.connect(
-    host="localhost", user="root", password=os.getenv("MY_KEY"), database="superhero_db"
-)
+        host="localhost", user="root", password=os.getenv("MY_KEY"), database="superhero_db"
+    )
+cursor = db.cursor()
 
 
 class Database:
@@ -31,11 +29,6 @@ class Database:
     def __init__(self, connection):
         self.connection = connection
         self.cursor = self.connection.cursor()
-
-    def create_database(self):
-        """erstellung Datenbank"""
-        self.cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
-        self.connection.commit()
 
     def create_tables(self):
         """erstellung der Tables"""
@@ -206,7 +199,6 @@ with open(
 ) as file:
     datei = json.load(file)
 database = Database(db)
-database.create_database()
 database.create_tables()
 database.insert_data(datei)
 

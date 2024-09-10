@@ -22,12 +22,12 @@ Dieses Projekt zielt darauf ab, eine Webanwendung mit Flask aufzusetzen und sie 
 
 ## Fragen und Antworten
 - Was ist Webentwicklung? Erkläre den Prozess des "Bauens" von Webseiten oder Anwendungen für das Internet.
-    - Das erstellen von Webseiten und Anwendungen für das internet.   
+    - Zuerst wird das Design und die struktur festgelegt, dann mit HTML und CSS das Frontend erstellt. Als letztes wird das Backend erstellt.   
 - Was ist ein Framework und was ein SDK? Unterscheide zwischen den beiden und erkläre ihre Rolle in der Entwicklung.
-    - Ein Framework ist eine halbfertige Sammlung von Funktionen und Komponenten oder sogar Anwendungen.
-    SDK (Software Development Kit) ist eine Sammlung von Progrmierwerkzeugen und Programmbibliotheken es unterstützt Softwareentwickler. 
+    - Ein Framework ist eine halbfertige Sammlung von Funktionen und Komponenten oder sogar Anwendungen, zudem gibt es klare Regeln und abläufe.
+    SDK (Software Development Kit) ist eine Sammlung von Progrmierwerkzeugen und Programmbibliotheken es unterstützt Softwareentwickler, Außerdem ist es flexibler. 
 - Welche Sprachen und Frameworks spielen eine Rolle in der Webentwicklung? Nenne Beispiele und ihre Verwendungszwecke.
-    - Flask für Python: erstellung der Webseiten,es bietet Formularvalidierungen und offene Authentifizierung. Django: Es bietet HttpResponse, Cross-Site-Scripting und Funktionen für die Benutzerverwaltung und die Softwareverteilung. 
+    - Flask für Python: erstellung der Webseiten,es bietet Formularvalidierungen und offene Authentifizierung. Django: Es bietet HttpResponse, Schutz vor Cross-Site-Scripting und Funktionen für die Benutzerverwaltung und die Softwareverteilung. 
 - Was ist Jinja2 und wofür kann ich es verwenden? Erläutere die Verwendung von Jinja2 in Flask.
     - Jinja2 ist eine Python-Bibliothek, mit der sie aus einer Basisvorlagentextdatei Vorlagen für verschiedene Ausgabenformate erstellen können 
 - Was sind die Flask HTTP-Methoden, welche gibt es und wann brauche ich welche? Beschreibe die verschiedenen HTTP-Methoden in Flask und ihre Verwendung.
