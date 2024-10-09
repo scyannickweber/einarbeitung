@@ -5,7 +5,6 @@ import os
 from fastapi import FastAPI
 import mysql.connector
 from dotenv import load_dotenv
-from fastapi.encoders import jsonable_encoder # vllt zum Formatieren der Ausgaben nutzen
 
 load_dotenv()
 
@@ -70,7 +69,6 @@ def squads_with_members():
     cursor_squad.execute(query)
     results = cursor_squad.fetchall()
 
-    # Daten strukturieren, um Squads und Mitglieder gruppiert zurückzugeben
     squads_dict = {}
     for row in results:
         squad_id = row["squadID"]
@@ -87,7 +85,6 @@ def squads_with_members():
                 "members": []
             }
 
-        # Falls ein Mitglied existiert, füge es der Liste der Mitglieder hinzu
         if row["memberID"]:
             squads_dict[squad_id]["members"].append({
                 "memberID": row["memberID"],
@@ -122,7 +119,7 @@ def id_squad(squad_id: int) -> Dict:
     """
     
     cursor_squad.execute(squad_query, (squad_id,))
-    squad_info = cursor_squad.fetchone()  # Nur eine Zeile für das Squad selbst
+    squad_info = cursor_squad.fetchone() 
     
     if not squad_info:
         return {"error": "Squad not found"}
