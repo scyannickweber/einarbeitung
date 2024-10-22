@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+    <title>Squads</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1.25px solid black;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        form {
+
+            display: inline;
+        }
+        button {
+            margin: 0;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Squads List</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <table id="squads">
+        <thead>
+            <tr>
+                <th>Squad ID</th>
+                <th>Squad Name</th>
+                <th>Home Town</th>
+                <th>Formed</th>
+                <th>Status</th>
+                <th>Secret Base</th>
+                <th>Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for squad in squads %}
+            <tr>
+                <td>{{ squad[0] }}</td>
+                <td>{{ squad[1] }}</td>
+                <td>{{ squad[2] }}</td>
+                <td>{{ squad[3] }}</td>
+                <td>{{ squad[4] }}</td>
+                <td>{{ squad[5] }}</td>
+                <td>{{ squad[6] }}</td>
+                <td>
+                    <a href="{{ url_for('show_squad_members', squad_id=squad[0]) }}">
+                        <button type="button">Details</button>
+                    </a>
+                    <form action="{{ url_for('squad_del', squad_id=squad[0]) }}" method="POST">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <a href="{{ url_for('squad_edit', squad_id=squad[0]) }}">
+                        <button type="button">Edit</button>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <a href="http://127.0.0.1:5000">hier<a> drücken um zurück zu gehen<a>
+</body>
+</html>
