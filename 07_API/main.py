@@ -12,16 +12,16 @@ load_dotenv()
 app = FastAPI()
 
 db = mysql.connector.connect(
-    host="localhost", 
-    user=os.getenv("USER"), 
+    host="localhost",
+    user=os.getenv("USER"),
     password=os.getenv("MY_KEY")
 )
 cursor = db.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS superhero_db")
 db = mysql.connector.connect(
-    host="localhost", 
-    user=os.getenv("USER"), 
-    password=os.getenv("MY_KEY"), 
+    host="localhost",
+    user=os.getenv("USER"),
+    password=os.getenv("MY_KEY"),
     database="superhero_db"
 )
 
@@ -29,16 +29,16 @@ db = mysql.connector.connect(
 def all_squads():
     """Ausgabe aller squads"""
     cursor_squads = db.cursor(dictionary=True)
-    query = "SELECT * FROM squads;" 
+    query = "SELECT * FROM squads;"
     cursor_squads.execute(query)
     results = cursor_squads.fetchall()
     return results
 
 @app.get("/only-members/", response_model=List[dict])
-def all_squads():
+def all_members():
     """Ausgabe aller member"""
     cursor_squads = db.cursor(dictionary=True)
-    query = "SELECT * FROM members;" 
+    query = "SELECT * FROM members;"
     cursor_squads.execute(query)
     results = cursor_squads.fetchall()
     return results
@@ -48,7 +48,7 @@ def squads_with_members():
     """Ausgabe aller Squads und deren Mitglieder"""
     cursor_squad = db.cursor(dictionary=True)
     query = """
-        SELECT 
+        SELECT
             s.squadID,
             s.squadName,
             s.homeTown,
@@ -60,11 +60,11 @@ def squads_with_members():
             m.name AS member_name,
             m.age,
             m.secretIdentity
-        FROM 
+        FROM
             squads s
-        LEFT JOIN 
+        LEFT JOIN
             squadMembers sm ON s.squadID = sm.squadID
-        LEFT JOIN 
+        LEFT JOIN
             members m ON sm.memberID = m.memberID;
     """
     cursor_squad.execute(query)
@@ -101,32 +101,32 @@ def id_squad(squad_id: int) -> Dict:
     """Ausgabe eines squads und seiner Mitglieder anhand der ID"""
     cursor_squad = db.cursor(dictionary=True)
     squad_query = """
-        SELECT 
+        SELECT
             squadName, homeTown, formed, status, secretBase, active
-        FROM 
+        FROM
             squads
-        WHERE 
+        WHERE
             squadID = %s;
     """
     members_query = """
-        SELECT 
+        SELECT
             m.name AS member_name, m.age, m.secretIdentity
-        FROM 
+        FROM
             members m
-        JOIN 
+        JOIN
             squadMembers sm ON m.memberID = sm.memberID
-        WHERE 
+        WHERE
             sm.squadID = %s;
     """
 
     cursor_squad.execute(squad_query, (squad_id,))
-    squad_info = cursor_squad.fetchone() 
+    squad_info = cursor_squad.fetchone()
 
     if not squad_info:
         return {"error": "Squad not found"}
 
     cursor_squad.execute(members_query, (squad_id,))
-    members = cursor_squad.fetchall() 
+    members = cursor_squad.fetchall()
 
     result = {
         "squad": squad_info,
@@ -143,11 +143,9 @@ def delete_squad(squad_id: int) -> Dict:
         DELETE FROM squads
         WHERE squadID = %s;"""
     cursor_squad.execute(delete_query, (squad_id,))
-    db.commit()  # Falls du eine SQL-Transaktion abschließen musst
+    db.commit()
 
     return {"message": "Squad deleted", "rows_affected": cursor_squad.rowcount}
-
-from typing import Dict
 
 class SquadUpdate(BaseModel):
     squadName: str
@@ -155,7 +153,7 @@ class SquadUpdate(BaseModel):
     formed: int
     status: str
     secretBase: str
-    active: bool  
+    active: bool
 
 @app.put("/squads/edit/{squad_id}")
 def update_squad(squad_id: int, squad: SquadUpdate) -> Dict:
@@ -167,13 +165,14 @@ def update_squad(squad_id: int, squad: SquadUpdate) -> Dict:
         SET squadName = %s, homeTown = %s, formed = %s, status = %s, secretBase = %s, active = %s
         WHERE squadID = %s;
     """
-    cursor_squad.execute(update_query, (squad.squadName, squad.homeTown, squad.formed, squad.status, squad.secretBase, squad.active, squad_id))
+    cursor_squad.execute(update_query, (squad.squadName, squad.homeTown,
+    squad.formed, squad.status, squad.secretBase, squad.active, squad_id))
     db.commit()
 
     return {"message": "Squad updated successfully", "rows_affected": cursor_squad.rowcount}
 
 class MemberUpdate(BaseModel):
-    name : str 
+    name : str
     age : int
     secretIdentity : str
 
@@ -185,7 +184,7 @@ def update_member(member_id: int, member: MemberUpdate) -> Dict:
     update_query = """
        UPDATE members
        SET name = %s, age = %s, secretIdentity = %s
-       Where memberID = %s; 
+       Where memberID = %s;
     """
     cursor_member.execute(update_query, (member.name, member.age, member.secretIdentity, member_id))
     db.commit()
