@@ -5,6 +5,7 @@ import os
 from fastapi import FastAPI
 import mysql.connector
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -35,7 +36,7 @@ def all_squads():
 
 @app.get("/only-members/", response_model=List[dict])
 def all_squads():
-    """Ausgabe aller squads"""
+    """Ausgabe aller member"""
     cursor_squads = db.cursor(dictionary=True)
     query = "SELECT * FROM members;" 
     cursor_squads.execute(query)
@@ -117,19 +118,76 @@ def id_squad(squad_id: int) -> Dict:
         WHERE 
             sm.squadID = %s;
     """
-    
+
     cursor_squad.execute(squad_query, (squad_id,))
     squad_info = cursor_squad.fetchone() 
-    
+
     if not squad_info:
         return {"error": "Squad not found"}
-    
+
     cursor_squad.execute(members_query, (squad_id,))
     members = cursor_squad.fetchall() 
-    
+
     result = {
         "squad": squad_info,
         "members": members
     }
-    
+
     return result
+
+@app.delete("/squads/delete/{squad_id}")
+def delete_squad(squad_id: int) -> Dict:
+    """Löschen eines squads anhand seiner ID"""
+    cursor_squad = db.cursor(dictionary=True)
+    delete_query = """
+        DELETE FROM squads
+        WHERE squadID = %s;"""
+    cursor_squad.execute(delete_query, (squad_id,))
+    db.commit()  # Falls du eine SQL-Transaktion abschließen musst
+
+    return {"message": "Squad deleted", "rows_affected": cursor_squad.rowcount}
+
+from typing import Dict
+
+class SquadUpdate(BaseModel):
+    squadName: str
+    homeTown: str
+    formed: int
+    status: str
+    secretBase: str
+    active: bool  
+
+@app.put("/squads/edit/{squad_id}")
+def update_squad(squad_id: int, squad: SquadUpdate) -> Dict:
+    """Aktualisiert einen Squad anhand seiner ID"""
+
+    cursor_squad = db.cursor(dictionary=True)
+    update_query = """
+        UPDATE squads
+        SET squadName = %s, homeTown = %s, formed = %s, status = %s, secretBase = %s, active = %s
+        WHERE squadID = %s;
+    """
+    cursor_squad.execute(update_query, (squad.squadName, squad.homeTown, squad.formed, squad.status, squad.secretBase, squad.active, squad_id))
+    db.commit()
+
+    return {"message": "Squad updated successfully", "rows_affected": cursor_squad.rowcount}
+
+class MemberUpdate(BaseModel):
+    name : str 
+    age : int
+    secretIdentity : str
+
+@app.put("/members/edit/{member_id}")
+def update_member(member_id: int, member: MemberUpdate) -> Dict:
+    """Aktualisiert einen Member anhand seiner ID"""
+
+    cursor_member = db.cursor(dictionary=True)
+    update_query = """
+       UPDATE members
+       SET name = %s, age = %s, secretIdentity = %s
+       Where memberID = %s; 
+    """
+    cursor_member.execute(update_query, (member.name, member.age, member.secretIdentity, member_id))
+    db.commit()
+
+    return {"message": "Member Updated successfully", "rows_affected": cursor_member.rowcount}
