@@ -18,6 +18,7 @@ In diesem Projekt soll eine Webanwendung in einem Docker-Container gestartet wer
 
 ## Fragen und Antworten
 - Was sind die Unterschiede zwischen einer Virtual Machine (VM) und Docker? Erläutere die Konzepte und ihre Vor- und Nachteile.
+    - 
 - Was ist Docker und was ist docker-compose? Beschreibe die Funktionen und Verwendungszwecke von Docker und docker-compose.
 - Was sind die Vorteile von Docker? Diskutiere die Vorteile von Docker im Vergleich zu traditionellen Bereitstellungsmethoden.
 - Was ist ein Docker-Image? Beschreibe die Bedeutung und Funktionsweise von Docker-Images.
